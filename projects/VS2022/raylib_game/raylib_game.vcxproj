@@ -360,7 +360,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\src\screens.h" />
-    <ClInclude Include="GameObject.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\src\raylib_game.cpp" />
@@ -369,6 +368,8 @@
     <ClCompile Include="..\..\..\src\screen_options.cpp" />
     <ClCompile Include="..\..\..\src\screen_gameplay.cpp" />
     <ClCompile Include="..\..\..\src\screen_ending.cpp" />
+    <ClCompile Include="screen_gamemap.cpp" />
+    <ClCompile Include="screen_gamereward.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\..\..\src\raylib_game.rc" />

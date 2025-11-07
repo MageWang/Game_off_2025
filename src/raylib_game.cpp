@@ -14,7 +14,6 @@
 
 #include "raylib.h"
 #include "screens.h"    // NOTE: Declares global (extern) variables and screens functions
-#include "GameObject.h"
 
 #if defined(PLATFORM_WEB)
     #include <emscripten/emscripten.h>
@@ -28,6 +27,22 @@ GameScreen currentScreen = LOGO;
 Font font = { 0 };
 Music music = { 0 };
 Sound fxCoin = { 0 };
+typedef struct Screen {
+    void (*Init)();
+    void (*Update)();
+    void (*Draw)();
+    void (*Unload)();
+    int (*Finish)();  // return next screen index or -1 if not finished
+} Screen;
+Screen screens[SCREEN_COUNT] = {
+    { InitLogoScreen, UpdateLogoScreen, DrawLogoScreen, UnloadLogoScreen, FinishLogoScreen },
+    { InitTitleScreen, UpdateTitleScreen, DrawTitleScreen, UnloadTitleScreen, FinishTitleScreen },
+    { InitOptionsScreen, UpdateOptionsScreen, DrawOptionsScreen, UnloadOptionsScreen, FinishOptionsScreen },
+    { InitGameMapScreen, UpdateGameMapScreen, DrawGameMapScreen, UnloadGameMapScreen, FinishGameMapScreen },
+    { InitGameplayScreen, UpdateGameplayScreen, DrawGameplayScreen, UnloadGameplayScreen, FinishGameplayScreen },
+    { InitGameRewardScreen, UpdateGameRewardScreen, DrawGameRewardScreen, UnloadGameRewardScreen, FinishGameRewardScreen },
+    { InitEndingScreen, UpdateEndingScreen, DrawEndingScreen, UnloadEndingScreen, FinishEndingScreen }
+};
 
 //----------------------------------------------------------------------------------
 // Global Variables Definition (local to this module)
@@ -45,12 +60,10 @@ static GameScreen transToScreen = UNKNOWN;
 //----------------------------------------------------------------------------------
 // Module Functions Declaration
 //----------------------------------------------------------------------------------
-static void ChangeToScreen(int screen);     // Change to screen, no transition effect
-
+//static void ChangeToScreen(int screen);     // Change to screen, no transition effect
 static void TransitionToScreen(int screen); // Request transition to next screen
 static void UpdateTransition(void);         // Update transition effect
 static void DrawTransition(void);           // Draw transition effect (full-screen rectangle)
-
 static void UpdateDrawFrame(void);          // Update and draw one frame
 
 //----------------------------------------------------------------------------------
@@ -91,16 +104,7 @@ int main(void)
 
     // De-Initialization
     //--------------------------------------------------------------------------------------
-    // Unload current screen data before closing
-    switch (currentScreen)
-    {
-        case LOGO: UnloadLogoScreen(); break;
-        case TITLE: UnloadTitleScreen(); break;
-        case OPTIONS: UnloadOptionsScreen(); break;
-        case GAMEPLAY: UnloadGameplayScreen(); break;
-        case ENDING: UnloadEndingScreen(); break;
-        default: break;
-    }
+    screens[transFromScreen].Unload();
 
     // Unload global data loaded
     UnloadFont(font);
@@ -118,34 +122,6 @@ int main(void)
 //----------------------------------------------------------------------------------
 // Module Functions Definition
 //----------------------------------------------------------------------------------
-// Change to next screen, no transition
-static void ChangeToScreen(int screen)
-{
-    // Unload current screen
-    switch (currentScreen)
-    {
-        case LOGO: UnloadLogoScreen(); break;
-        case TITLE: UnloadTitleScreen(); break;
-        case OPTIONS: UnloadOptionsScreen(); break;
-        case GAMEPLAY: UnloadGameplayScreen(); break;
-        case ENDING: UnloadEndingScreen(); break;
-        default: break;
-    }
-
-    // Init next screen
-    switch (screen)
-    {
-        case LOGO: InitLogoScreen(); break;
-        case TITLE: InitTitleScreen(); break;
-        case OPTIONS: InitOptionsScreen(); break;
-        case GAMEPLAY: InitGameplayScreen(); break;
-        case ENDING: InitEndingScreen(); break;
-        default: break;
-    }
-
-    currentScreen = (GameScreen)screen;
-}
-
 // Request transition to next screen
 static void TransitionToScreen(int screen)
 {
@@ -170,26 +146,10 @@ static void UpdateTransition(void)
             transAlpha = 1.0f;
 
             // Unload current screen
-            switch (transFromScreen)
-            {
-                case LOGO: UnloadLogoScreen(); break;
-                case TITLE: UnloadTitleScreen(); break;
-                case OPTIONS: UnloadOptionsScreen(); break;
-                case GAMEPLAY: UnloadGameplayScreen(); break;
-                case ENDING: UnloadEndingScreen(); break;
-                default: break;
-            }
+            screens[transFromScreen].Unload();
 
             // Load next screen
-            switch (transToScreen)
-            {
-                case LOGO: InitLogoScreen(); break;
-                case TITLE: InitTitleScreen(); break;
-                case OPTIONS: InitOptionsScreen(); break;
-                case GAMEPLAY: InitGameplayScreen(); break;
-                case ENDING: InitEndingScreen(); break;
-                default: break;
-            }
+            screens[transToScreen].Init();
 
             currentScreen = transToScreen;
 
