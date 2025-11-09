@@ -104,7 +104,7 @@ int main(void)
 
     // De-Initialization
     //--------------------------------------------------------------------------------------
-    screens[transFromScreen].Unload();
+    screens[currentScreen].Unload();
 
     // Unload global data loaded
     UnloadFont(font);
@@ -199,10 +199,13 @@ static void UpdateDrawFrame(void)
             case TITLE:
             {
                 UpdateTitleScreen();
+                if (FinishTitleScreen()) TransitionToScreen(GAME_MAP);
 
-                if (FinishTitleScreen() == 1) TransitionToScreen(OPTIONS);
-                else if (FinishTitleScreen() == 2) TransitionToScreen(GAMEPLAY);
-
+            } break;
+            case GAME_MAP:
+            {
+                UpdateGameMapScreen();
+                if (FinishGameMapScreen()) TransitionToScreen(TITLE);
             } break;
             case OPTIONS:
             {
@@ -238,15 +241,7 @@ static void UpdateDrawFrame(void)
 
         ClearBackground(RAYWHITE);
 
-        switch(currentScreen)
-        {
-            case LOGO: DrawLogoScreen(); break;
-            case TITLE: DrawTitleScreen(); break;
-            case OPTIONS: DrawOptionsScreen(); break;
-            case GAMEPLAY: DrawGameplayScreen(); break;
-            case ENDING: DrawEndingScreen(); break;
-            default: break;
-        }
+        screens[currentScreen].Draw();
 
         // Draw full screen rectangle in front of everything
         if (onTransition) DrawTransition();
