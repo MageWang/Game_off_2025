@@ -87,53 +87,44 @@ void DrawGameMapScreen(void)
     std::vector<int> levels[10]; // 假設最多10層
     int maxLevel = 0;
 
-    int baseY = 150;
-    int offsetY = 120;
-    int offsetX = 160;
+    int baseX = GetScreenWidth() / 2;
+    int baseY = 120;
+    int offsetX = 160; // 左右間距
+    int offsetY = 120; // 上下間距
     int radius = 32;
 
-    // 對每一層
-    for (int lvl = 0; lvl <= maxLevel; lvl++) {
-        int count = levels[lvl].size();
-        if (count == 0) continue;
+    for (int i = 0; i < NODE_COUNT; i++) {
+        levels[tree[i].level].push_back(i);
+        if (tree[i].level > maxLevel) maxLevel = tree[i].level;
+    }
 
-        // 這層起始 X，讓整層置中
-        int totalWidth = (count - 1) * offsetX;
-        int startX = GetScreenWidth() / 2 - totalWidth / 2;
+    // Draw connections (lines)
+    for (int i = 0; i < NODE_COUNT; i++) {
+        for (int p : tree[i].parents) {
+            int x1 = baseX + (i - NODE_COUNT / 2) * offsetX;
+            int y1 = baseY + tree[i].level * offsetY;
 
-        for (int idx = 0; idx < count; idx++) {
-            int node = levels[lvl][idx];
+            int x2 = baseX + (p - NODE_COUNT / 2) * offsetX;
+            int y2 = baseY + tree[p].level * offsetY;
 
-            int x = startX + idx * offsetX;
-            int y = baseY + lvl * offsetY;
-
-            // --- Draw edges (parent lines)
-            for (int p : tree[node].parents) {
-                // 找父節點位置 (需要搜尋)
-                for (int lvl2 = 0; lvl2 <= maxLevel; lvl2++) {
-                    for (int idx2 = 0; idx2 < levels[lvl2].size(); idx2++) {
-                        int candidate = levels[lvl2][idx2];
-                        if (candidate == p) {
-                            int px = GetScreenWidth() / 2 - ((levels[lvl2].size() - 1) * offsetX) / 2 + idx2 * offsetX;
-                            int py = baseY + lvl2 * offsetY;
-                            DrawLine(x, y, px, py, LIGHTGRAY);
-                        }
-                    }
-                }
-            }
-
-            // --- Draw nodes
-            Color c = (node == currentNode) ? RED : BLACK;
-            Color fill = (node == currentNode) ? PINK : RAYWHITE;
-
-            DrawCircle(x, y, radius, fill);
-            DrawCircleLines(x, y, radius, c);
-
-            int textWidth = MeasureText(tree[node].text, 20);
-            DrawText(tree[node].text, x - textWidth / 2, y - 10, 20, c);
+            DrawLine(x1, y1, x2, y2, LIGHTGRAY);
         }
     }
 
+    // Draw nodes (circles)
+    for (int i = 0; i < NODE_COUNT; i++) {
+        int x = baseX + (i - NODE_COUNT / 2) * offsetX;
+        int y = baseY + tree[i].level * offsetY;
+
+        Color c = (i == currentNode) ? RED : BLACK;
+        Color fill = (i == currentNode) ? PINK : RAYWHITE;
+
+        DrawCircle(x, y, radius, fill);
+        DrawCircleLines(x, y, radius, c);
+
+        int textWidth = MeasureText(tree[i].text, 20);
+        DrawText(tree[i].text, x - textWidth / 2, y - 10, 20, c);
+    }
 
     // Show current selection
     DrawText("Current:", 50, GetScreenHeight() - 120, 22, BLACK);
