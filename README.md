@@ -1,3 +1,39 @@
+## GameOff 2025 (Wave)
+
+![$(Game Title)](screenshots/screenshot000.png "$(Game Title)")
+
+### Description
+
+$(Your Game Description)
+
+### Features
+
+ - $(Game Feature 01)
+ - $(Game Feature 02)
+ - $(Game Feature 03)
+
+### Controls
+
+Keyboard:
+ - $(Game Control 01)
+ - $(Game Control 02)
+ - $(Game Control 03)
+
+### Screenshots
+
+_TODO: Show your game to the world, animated GIFs recommended!._
+
+### Developers
+
+ - $(Developer 01) - $(Role/Tasks Developed)
+ - $(Developer 02) - $(Role/Tasks Developed)
+ - $(Developer 03) - $(Role/Tasks Developed)
+
+### Links
+
+ - YouTube Gameplay: $(YouTube Link)
+ - itch.io Release: $(itch.io Game Page)
+ - Steam Release: $(Steam Game Page)
 -----------------------------------
 
 _DISCLAIMER:_
@@ -57,42 +93,7 @@ cmake --build build
 
 - cmake will automatically download a current release of raylib but if you want to use your local version you can pass `-DFETCHCONTENT_SOURCE_DIR_RAYLIB=<dir_with_raylib>` 
 
-## $(Game Title)
 
-![$(Game Title)](screenshots/screenshot000.png "$(Game Title)")
-
-### Description
-
-$(Your Game Description)
-
-### Features
-
- - $(Game Feature 01)
- - $(Game Feature 02)
- - $(Game Feature 03)
-
-### Controls
-
-Keyboard:
- - $(Game Control 01)
- - $(Game Control 02)
- - $(Game Control 03)
-
-### Screenshots
-
-_TODO: Show your game to the world, animated GIFs recommended!._
-
-### Developers
-
- - $(Developer 01) - $(Role/Tasks Developed)
- - $(Developer 02) - $(Role/Tasks Developed)
- - $(Developer 03) - $(Role/Tasks Developed)
-
-### Links
-
- - YouTube Gameplay: $(YouTube Link)
- - itch.io Release: $(itch.io Game Page)
- - Steam Release: $(Steam Game Page)
 
 ### License
 
