@@ -27,6 +27,7 @@ GameScreen currentScreen = LOGO;
 Font font = { 0 };
 Music music = { 0 };
 Sound fxCoin = { 0 };
+
 typedef struct Screen {
     void (*Init)();
     void (*Update)();
@@ -34,6 +35,7 @@ typedef struct Screen {
     void (*Unload)();
     int (*Finish)();  // return next screen index or -1 if not finished
 } Screen;
+
 Screen screens[SCREEN_COUNT] = {
     { InitLogoScreen, UpdateLogoScreen, DrawLogoScreen, UnloadLogoScreen, FinishLogoScreen },
     { InitTitleScreen, UpdateTitleScreen, DrawTitleScreen, UnloadTitleScreen, FinishTitleScreen },
