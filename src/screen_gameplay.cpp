@@ -20,9 +20,9 @@ typedef struct Unit {
     bool alive;
 } Unit;
 
-typedef struct Node {
+typedef struct GamePlayNode {
     int x, y;
-} Node;
+} GamePlayNode;
 
 static Unit units[MAX_UNITS];
 static int unitCount = 0;
@@ -67,7 +67,7 @@ static int Distance(Unit* a, Unit* b)
 
 static int DistanceWithBFS(Unit* a, Unit* b)
 {
-    struct Node { int x, y, d; };
+    struct BFSNode { int x, y, d; };
 
     static bool visited[GRID_HEIGHT][GRID_WIDTH];
 
@@ -86,7 +86,7 @@ static int DistanceWithBFS(Unit* a, Unit* b)
         return false;
     };
 
-    std::queue<Node> q;
+    std::queue<BFSNode> q;
     q.push({ a->x, a->y, 0 });
     visited[a->y][a->x] = true;
 
@@ -94,7 +94,7 @@ static int DistanceWithBFS(Unit* a, Unit* b)
 
     while (!q.empty())
     {
-        Node cur = q.front(); q.pop();
+        BFSNode cur = q.front(); q.pop();
 
         if (cur.x == b->x && cur.y == b->y)
             return cur.d;
@@ -159,7 +159,7 @@ static void GenerateRandomGrid()
             }
         }
     } 
-    while (Distance(&t1, &t2) < 0);
+    while (DistanceWithBFS(&t1, &t2) < 0);
 }
 
 bool UnitSort(const Unit& a, const Unit& b)
@@ -228,11 +228,15 @@ static void MoveTowards(Unit* u, Unit* target)
 
     static std::vector<std::vector<bool>> visited(
         GRID_HEIGHT, std::vector<bool>(GRID_WIDTH, false));
-    static std::vector<std::vector<Node>> parent(
-        GRID_HEIGHT, std::vector<Node>(GRID_WIDTH));
+    static std::vector<std::vector<GamePlayNode>> parent(
+        GRID_HEIGHT, std::vector<GamePlayNode>(GRID_WIDTH));
 
     // reset
     for (auto& row : visited) std::fill(row.begin(), row.end(), false);
+
+    for (auto& row : parent)
+        for (auto& p : row)
+            p = { -1, -1 };
 
     auto IsBlocked = [](int x, int y, Unit* self, Unit* dest)
     {
@@ -244,7 +248,7 @@ static void MoveTowards(Unit* u, Unit* target)
         return false;
     };
 
-    std::queue<Node> q;
+    std::queue<GamePlayNode> q;
     q.push({ u->x, u->y });
     visited[u->y][u->x] = true;
 
@@ -259,7 +263,7 @@ static void MoveTowards(Unit* u, Unit* target)
     int step = 0;
     while (!q.empty())
     {
-        Node cur = q.front(); q.pop();
+        GamePlayNode cur = q.front(); q.pop();
         if (cur.x == target->x && cur.y == target->y) {
             found = true;
             break;
@@ -298,8 +302,8 @@ static void MoveTowards(Unit* u, Unit* target)
     // ✅ 找到路：回溯移動
     if (found)
     {
-        std::vector<Node> path;
-        Node cur = { target->x, target->y };
+        std::vector<GamePlayNode> path;
+        GamePlayNode cur = { target->x, target->y };
         while (!(cur.x == u->x && cur.y == u->y))
         {
             path.push_back(cur);
