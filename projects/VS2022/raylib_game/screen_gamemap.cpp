@@ -8,7 +8,7 @@
 #include <string>
 #include <algorithm>
 #include <iostream>
-
+#include <queue>
 
 //---------------------------------------------------------------------------
 // Tree data structure
@@ -43,51 +43,67 @@ static int RADIOUS = 32;
 //---------------------------------------------------------------------------
 static int currentNode = 0;         // 玩家目前位於哪個節點
 static int finishScreen = 0;
-void RandGameMap(int levels, int maxNodesPerLevel, int maxParents)
+void RandGameMap(int nlevels, int maxPathsPerNode, int maxParents)
 {
     game_map_tree.clear();
+    std::vector<std::vector<int>> levelIndex(nlevels + 1); // 各層節點索引 list
     
-    std::vector<std::vector<int>> levelIndex(levels + 1); // 各層節點索引 list
-
     int idCounter = 0;
+    
+    // 以bfs方法依序建立節點
+    levelIndex[nlevels].push_back(idCounter);
+    
+    game_map_tree.push_back({});
+    int nIdx = 0;
+    game_map_tree[nIdx].level = nlevels;
+    game_map_tree[nIdx].text = "Root " + std::to_string(idCounter);
+    idCounter++;
 
-    // 從底層到頂層建立節點
-    for (int lvl = 0; lvl <= levels; lvl++) {
-        int nodeCount = (rand() % maxNodesPerLevel) + 1;
-
-        for (int i = 0; i < nodeCount; i++) {
-            GameMapNode n;
-            n.level = lvl;
-
-            // 產生名字
-            if (lvl == 0) {
-                n.text = (std::string("Ending ") + std::string(1, 'A' + idCounter));
+    std::queue<int> queue;
+    queue.push(nIdx);
+    while (!queue.empty())
+    {
+        nIdx = queue.front();
+        queue.pop();
+        int pathsPerNode = 1 + rand() % maxPathsPerNode;
+        if (game_map_tree[nIdx].level == 0) return;
+        if (game_map_tree[nIdx].level == 1) pathsPerNode = 1;
+        for (int i = 0; i < pathsPerNode; i++)
+        {
+            bool isShareNode = false;
+            if (levelIndex[game_map_tree[nIdx].level - 1].size() > 0)
+            {
+                isShareNode = rand() % 3 == 0? true : false;
+                if (game_map_tree[nIdx].level == 1) isShareNode = true;
             }
-            else if (lvl == levels) {
-                n.text = "Root " + std::to_string(idCounter);
-            }
-            else {
-                n.text = "Path " + std::to_string(idCounter);
-            }
 
-            // 設定父節點 (往上一層連)
-            if (lvl > 0) {
-                int parentsCount = std::min(maxParents, (int)levelIndex[lvl - 1].size());
-                parentsCount = (parentsCount > 0) ? (rand() % parentsCount + 1) : 0;
-
-                for (int p = 0; p < parentsCount; p++) {
-                    int parentIdx = rand() % levelIndex[lvl - 1].size();
-                    n.parents.push_back(levelIndex[lvl - 1][parentIdx]);
+            GameMapNode t;
+            if (!isShareNode)
+            {
+                t.level = game_map_tree[nIdx].level - 1;
+                // 產生名字
+                if (t.level == 0)
+                {
+                    t.text = std::string("End");
                 }
+                else
+                {
+                    t.text = "Path " + std::to_string(idCounter);
+                }
+                levelIndex[t.level].push_back(idCounter);
+                game_map_tree.push_back(t);
+                game_map_tree[nIdx].parents.push_back(idCounter);
+                queue.push(idCounter);
+                idCounter++;
             }
-
-            game_map_tree.push_back(n);
-            levelIndex[lvl].push_back(idCounter);
-            idCounter++;
+            else
+            {
+                int idx = levelIndex[game_map_tree[nIdx].level - 1][levelIndex[game_map_tree[nIdx].level - 1].size() - 1];
+                t = game_map_tree[idx];
+                game_map_tree[nIdx].parents.push_back(idx);
+            }
         }
     }
-    
-    printf("Draw tree=%p size=%zu\n", &game_map_tree, game_map_tree.size());
 }
 
 int GetTreeNodeCount() 
@@ -101,8 +117,8 @@ void InitGameMapScreen(void)
 {
     printf("RandGameMap tree=%p size=%zu\n", &game_map_tree, game_map_tree.size());
     finishScreen = 0;
-    RandGameMap(5, 4, 3);
-    currentNode = GetTreeNodeCount()>0? GetTreeNodeCount() - 1 : 0;  // 玩家從最底部 (0 = 最後結局) 開始
+    RandGameMap(5, 3, 3);
+    currentNode = 0;  // 玩家從最底部 (0 = 最後結局) 開始
     nodePos.resize(GetTreeNodeCount());
 }
 
@@ -168,14 +184,14 @@ void DrawGameMapScreen(void)
     for (int i = 0; i < GetTreeNodeCount(); i++) if (game_map_tree[i].level > maxLevel) maxLevel = game_map_tree[i].level;
     std::vector<std::vector<int>> levels(maxLevel + 1);
 
-    for (int i = 0; i < GetTreeNodeCount(); i++) {
+    for (int i = 0; i < GetTreeNodeCount(); i++) 
+    {
         levels[game_map_tree[i].level].push_back(i);
-        if (game_map_tree[i].level > maxLevel) maxLevel = game_map_tree[i].level;
     }
 
     int baseY = 150;
-    int offsetY = 120;
-    int offsetX = 160;
+    int offsetY = 100;
+    int offsetX = 120;
 
     // 對每一層
     for (int lvl = 0; lvl <= maxLevel; lvl++) {
@@ -196,14 +212,12 @@ void DrawGameMapScreen(void)
             // --- Draw edges (parent lines)
             for (int p : game_map_tree[node].parents) {
                 // 找父節點位置 (需要搜尋)
-                for (int lvl2 = 0; lvl2 <= maxLevel; lvl2++) {
-                    for (int idx2 = 0; idx2 < levels[lvl2].size(); idx2++) {
-                        int candidate = levels[lvl2][idx2];
-                        if (candidate == p) {
-                            int px = GetScreenWidth() / 2 - ((levels[lvl2].size() - 1) * offsetX) / 2 + idx2 * offsetX;
-                            int py = baseY + lvl2 * offsetY;
-                            DrawLine(x, y, px, py, LIGHTGRAY);
-                        }
+                for (int idx2 = 0; idx2 < levels[lvl-1].size(); idx2++) {
+                    int candidate = levels[lvl - 1][idx2];
+                    if (candidate == p) {
+                        int px = GetScreenWidth() / 2 - ((levels[lvl - 1].size() - 1) * offsetX) / 2 + idx2 * offsetX;
+                        int py = baseY + (lvl - 1) * offsetY;
+                        DrawLine(x, y, px, py, LIGHTGRAY);
                     }
                 }
             }
