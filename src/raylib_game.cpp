@@ -40,6 +40,7 @@ Screen screens[SCREEN_COUNT] = {
     { InitLogoScreen, UpdateLogoScreen, DrawLogoScreen, UnloadLogoScreen, FinishLogoScreen },
     { InitTitleScreen, UpdateTitleScreen, DrawTitleScreen, UnloadTitleScreen, FinishTitleScreen },
     { InitOptionsScreen, UpdateOptionsScreen, DrawOptionsScreen, UnloadOptionsScreen, FinishOptionsScreen },
+    { InitSetupScreen, UpdateSetupScreen, DrawSetupScreen, UnloadSetupScreen, FinishSetupScreen },
     { InitGameMapScreen, UpdateGameMapScreen, DrawGameMapScreen, UnloadGameMapScreen, FinishGameMapScreen },
     { InitGameplayScreen, UpdateGameplayScreen, DrawGameplayScreen, UnloadGameplayScreen, FinishGameplayScreen },
     { InitGameRewardScreen, UpdateGameRewardScreen, DrawGameRewardScreen, UnloadGameRewardScreen, FinishGameRewardScreen },
@@ -201,20 +202,23 @@ static void UpdateDrawFrame(void)
             case TITLE:
             {
                 UpdateTitleScreen();
-                if (FinishTitleScreen()) TransitionToScreen(GAME_MAP);
+                if (FinishTitleScreen()) TransitionToScreen(SETUP);
+            } break;
+            case OPTIONS:
+            {
+                UpdateOptionsScreen();
+                if (FinishOptionsScreen()) TransitionToScreen(TITLE);
+            } break;
+            case SETUP:
+            {
+                UpdateSetupScreen();
+                if (FinishSetupScreen()) TransitionToScreen(GAMEPLAY);
 
             } break;
             case GAME_MAP:
             {
                 UpdateGameMapScreen();
                 if (FinishGameMapScreen()) TransitionToScreen(TITLE);
-            } break;
-            case OPTIONS:
-            {
-                UpdateOptionsScreen();
-
-                if (FinishOptionsScreen()) TransitionToScreen(TITLE);
-
             } break;
             case GAMEPLAY:
             {

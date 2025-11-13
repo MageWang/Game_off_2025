@@ -29,7 +29,7 @@
 //----------------------------------------------------------------------------------
 // Types and Structures Definition
 //----------------------------------------------------------------------------------
-typedef enum GameScreen { UNKNOWN = -1, LOGO = 0, TITLE, OPTIONS, GAME_MAP, GAMEPLAY, GAME_REWARD, ENDING, SCREEN_COUNT} GameScreen;
+typedef enum GameScreen { UNKNOWN = -1, LOGO = 0, TITLE, OPTIONS, SETUP, GAME_MAP, GAMEPLAY, GAME_REWARD, ENDING, SCREEN_COUNT} GameScreen;
 
 //----------------------------------------------------------------------------------
 // Global Variables Declaration (shared by several modules)
@@ -70,6 +70,15 @@ void DrawOptionsScreen(void);
 void UnloadOptionsScreen(void);
 int FinishOptionsScreen(void);
 
+
+//----------------------------------------------------------------------------------
+// Screen Functions Declaration
+//----------------------------------------------------------------------------------
+void InitSetupScreen(void);
+void UpdateSetupScreen(void);
+void DrawSetupScreen(void);
+void UnloadSetupScreen(void);
+int FinishSetupScreen(void);
 
 //----------------------------------------------------------------------------------
 // GameMap Screen Functions Declaration

@@ -370,6 +370,7 @@
     <ClCompile Include="..\..\..\src\screen_ending.cpp" />
     <ClCompile Include="screen_gamemap.cpp" />
     <ClCompile Include="screen_gamereward.cpp" />
+    <ClCompile Include="screen_setup.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\..\..\src\raylib_game.rc" />
