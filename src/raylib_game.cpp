@@ -18,6 +18,7 @@
 #if defined(PLATFORM_WEB)
     #include <emscripten/emscripten.h>
 #endif
+#include <stdio.h>
 
 //----------------------------------------------------------------------------------
 // Shared Variables Definition (global)
@@ -60,6 +61,9 @@ static bool transFadeOut = false;
 static int transFromScreen = -1;
 static GameScreen transToScreen = UNKNOWN;
 
+Texture2D scarfy;        // Texture loading
+Image scarfyImg;
+
 //----------------------------------------------------------------------------------
 // Module Functions Declaration
 //----------------------------------------------------------------------------------
@@ -84,6 +88,9 @@ int main(void)
     font = LoadFont("resources/mecha.png");
     //music = LoadMusicStream("resources/ambient.ogg"); // TODO: Load music
     fxCoin = LoadSound("resources/coin.wav");
+    
+    scarfy = LoadTexture("resources/iconsDouble.png");
+    //printf("scarfy %p\n", &scarfy);
 
     SetMusicVolume(music, 1.0f);
     PlayMusicStream(music);
@@ -184,6 +191,7 @@ static void DrawTransition(void)
 // Update and draw game frame
 static void UpdateDrawFrame(void)
 {
+
     // Update
     //----------------------------------------------------------------------------------
     //UpdateMusicStream(music);       // NOTE: Music keeps playing between screens
@@ -246,14 +254,14 @@ static void UpdateDrawFrame(void)
     BeginDrawing();
 
         ClearBackground(RAYWHITE);
-
+        
         screens[currentScreen].Draw();
 
         // Draw full screen rectangle in front of everything
         if (onTransition) DrawTransition();
 
-        //DrawFPS(10, 10);
-
+        DrawFPS(10, 10);
+        
     EndDrawing();
     //----------------------------------------------------------------------------------
 }
