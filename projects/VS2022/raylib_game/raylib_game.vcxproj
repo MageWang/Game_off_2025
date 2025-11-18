@@ -360,6 +360,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\src\screens.h" />
+    <ClInclude Include="game_unit.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\src\raylib_game.cpp" />
